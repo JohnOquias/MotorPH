@@ -3,8 +3,13 @@ package motorph;
 
 import java.io.*;
 import java.util.Scanner;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.YearMonth;
 
-public class MotorPH {
+public class MotorPH2 {
     public static void main(String[]args){
         
         String employeeDetails = "resources//EmployeeDetails.csv";
@@ -42,10 +47,12 @@ public class MotorPH {
         else{System.out.println("Invalid option");}
         }
         
+        //Employee: Display Employee Details
         if (username.equals("employee")&&option.equals("1")){
             while (true){
         System.out.print("Enter Employee Number: ");
         String empNumInput = scanner.nextLine();
+        if (empNumInput.equals("exit"))System.exit(0);
         boolean found = false;
         try(BufferedReader br = new BufferedReader(new FileReader(employeeDetails))){
             br.readLine();
@@ -55,7 +62,7 @@ public class MotorPH {
                 if (data[0].equals(empNumInput)){
                     found = true;
                     System.out.println("Employee Number: "+data[0]);
-                    System.out.println("Name: "+data[2] +" "+data[1]);
+                    System.out.println("Name: "+data[1] +", "+data[2]);
                     System.out.println("Birthday: "+data[3]);
                     break;
                 }
@@ -67,6 +74,9 @@ public class MotorPH {
             System.out.println("Employee Number not found.");}
             }
         }
+        
+        
+        //Payroll Staff: Display Process Payroll sub-options
         String option2="";
         if (username.equals("payroll_staff")&&option.equals("1")){
         while (true){
@@ -83,14 +93,49 @@ public class MotorPH {
         } 
         }
         
-        if (option2.equals("1")){System.out.println("1!!!");}
-        else if(option2.equals("2")){System.out.println("2!!");}
-        else if(option2.equals("3")){System.exit(0);}
-        else {System.out.println("Invalid Input");}
+        //Payroll Staff: Process payroll for one employee
+        if (option2.equals("1")){
+            //Process payroll one employee: Display employee details
+        while (true){
+        System.out.print("Enter Employee Number: ");
+        String empNumInput = scanner.nextLine();
+        if (empNumInput.equals("exit")){System.exit(0);}
+        boolean found = false;
+        try(BufferedReader br = new BufferedReader(new FileReader(employeeDetails))){
+            br.readLine();
+            String line;
+            while ((line=br.readLine())!=null){
+                String[] data = line.split(",");
+                if (data[0].equals(empNumInput)){
+                    found = true;
+                    System.out.println("Employee Number: "+data[0]);
+                    System.out.println("Name: "+data[1] +", "+data[2]);
+                    System.out.println("Birthday: "+data[3]);
+                    break;
+                }
+            } 
+            //Process payroll one employee: calculations
+        for (int month=6;month <=12;month++){
+            double firstHalf =0;
+            double secondHalf=0;
+            int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();
+        }
+         //end of for loop
+        }
+        catch(IOException e){
+            e.printStackTrace();}
+        if (!found){
+            System.out.println("Employee Number not found.");}
+            }
+        }//end of process one employee
+        
+        
+        if(option2.equals("2")){System.out.println("2!!");}
+        if(option2.equals("3")){System.exit(0);}
+        
         
         scanner.close();
     }
 }
-
 
 
