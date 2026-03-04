@@ -151,6 +151,7 @@ public class MotorPH4 {
             double sss=0;
             double philHealthPremium = 0.03;
             double philHealth = 0;
+            double pagIBIG=0;
             
             
             
@@ -197,6 +198,7 @@ public class MotorPH4 {
             grossSalaryTotal = grossSalary1 + grossSalary2;
             sss = contributionSSS(grossSalaryTotal);
             philHealth = contributionPhilHealth(grossSalaryTotal, philHealthPremium);
+            pagIBIG = contributionPagIBIG(grossSalaryTotal);
             
             System.out.println("\nHourly Rate: "+hourlyRate);
             System.out.println("\nCutoff Date: " +monthName + " 1 to 15");
@@ -210,7 +212,7 @@ public class MotorPH4 {
             System.out.println("Deductions: ");
             System.out.println("    SSS: "+sss);
             System.out.println("    PhilHealth: "+philHealth);
-            System.out.println("    Pag-IBIG: ");
+            System.out.println("    Pag-IBIG: " + pagIBIG);
             System.out.println("    Tax: ");
             System.out.println("Net Salary: ");
             
@@ -293,4 +295,16 @@ static double contributionPhilHealth (double grossSalaryTotal, double premium){
     return grossSalaryTotal*(premium/2);
 }
 
+static double contributionPagIBIG (double grossSalaryTotal){
+    double contribution = 0;
+    if (grossSalaryTotal<1000.0)return 0;
+    if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
+        contribution = grossSalaryTotal*0.01;}
+    if (grossSalaryTotal > 1500.0){
+        contribution = grossSalaryTotal*0.02;}
+    
+    if (contribution > 100)return 100.0;
+    
+    return contribution;
+}
 }
