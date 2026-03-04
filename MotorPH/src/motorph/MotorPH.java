@@ -8,11 +8,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.YearMonth;
 
-public class MotorPH {
+public class MotorPH4 {
     public static void main(String[]args){
         
         String employeeDetails = "resources//EmployeeDetails.csv";
         String attendance = "resources//AttendanceRecord.csv";
+        
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
         String username ="";
         Scanner scanner = new Scanner(System.in);
@@ -132,7 +133,7 @@ public class MotorPH {
         catch(IOException e){
             e.printStackTrace();}
         if (!found){
-            System.out.println("Employee Number not found.");}
+            System.out.println("Employee Number not found.");continue;}
             
         System.out.println("Employee Number: "+empNumber);
         System.out.println("Name: "+lastName +", "+firstName);
@@ -146,6 +147,12 @@ public class MotorPH {
             double grossSalary2 =0;
             double netSalary1 =0;
             double netSalary2 =0;
+            double grossSalaryTotal =0;
+            double sss=0;
+            double philHealthPremium = 0.03;
+            double philHealth = 0;
+            
+            
             
             
             int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();
@@ -184,21 +191,25 @@ public class MotorPH {
                 case 12 -> "December";
                 default -> "Month "+month;    
             };
+            
             grossSalary1 = computeGrossSalary(hours1,hourlyRate);
             grossSalary2 = computeGrossSalary(hours2,hourlyRate);
+            grossSalaryTotal = grossSalary1 + grossSalary2;
+            sss = contributionSSS(grossSalaryTotal);
+            philHealth = contributionPhilHealth(grossSalaryTotal, philHealthPremium);
             
-            System.out.println("Hourly Rate: "+hourlyRate);
+            System.out.println("\nHourly Rate: "+hourlyRate);
             System.out.println("\nCutoff Date: " +monthName + " 1 to 15");
-            System.out.println("Total Hours Worked: "+ hours1);
-            System.out.println("Gross Salary: "+ grossSalary1);
-            System.out.println("Net Salary: "+ grossSalary1);
+            System.out.println("Total Hours Worked: " +hours1);
+            System.out.println("Gross Salary: "+grossSalary1);
+            System.out.println("Net Salary: "+grossSalary1);
             
             System.out.println("\nCutoff Date: " +monthName + " 16 to "+daysInMonth);
-            System.out.println("Total Hours Worked: "+ hours2);
-            System.out.println("Gross Salary: "+ grossSalary2);
+            System.out.println("Total Hours Worked: " +hours2);
+            System.out.println("Gross Salary: "+grossSalary2);
             System.out.println("Deductions: ");
-            System.out.println("    SSS: ");
-            System.out.println("    PhilHealth: ");
+            System.out.println("    SSS: "+sss);
+            System.out.println("    PhilHealth: "+philHealth);
             System.out.println("    Pag-IBIG: ");
             System.out.println("    Tax: ");
             System.out.println("Net Salary: ");
@@ -216,11 +227,16 @@ public class MotorPH {
         scanner.close();
     }
 
-
+//Methods
+    
 static double computeHours(LocalTime login, LocalTime logout){
     LocalTime graceTime = LocalTime.of(8,10);
+    LocalTime startTime = LocalTime.of(8,0);
     LocalTime cutoffTime = LocalTime.of(17,0);
     
+    if (!login.isAfter(graceTime)){
+        login = startTime;
+    }
     if (logout.isAfter(cutoffTime)){
         logout=cutoffTime;
     }
@@ -231,14 +247,50 @@ static double computeHours(LocalTime login, LocalTime logout){
         minutesWorked = 0;
     }
     double hours = minutesWorked / 60.0;
-    if (!login.isAfter(graceTime)){
-        return 8.0;
-    }
-    
+   
     return Math.min(hours, 8.0);
 }  
+
 static double computeGrossSalary(double hours, double hourlyRate){
     return hours*hourlyRate;
 }
+
+static double contributionSSS(double grossSalaryTotal){
+    String sssTable = "resources//SSSContribution.csv";
+    double min =0;
+    double max=0;
+    double contribution=0;
+    if (grossSalaryTotal<3250){return 135.00;}
+    if (grossSalaryTotal>=24750){return 1125.00;}
+    try(BufferedReader br = new BufferedReader(new FileReader(sssTable))){
+            br.readLine();
+            br.readLine();
+            String line;
+            while ((line=br.readLine())!=null){
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = data[i].replaceAll("^\"|\"$", "").trim().replace(",", "");
+                }   
+               
+                for (int i = 0;i<(data.length-1);i++){
+                    min = Double.parseDouble(data[0]);
+                    max = Double.parseDouble(data[2]);
+                    contribution = Double.parseDouble(data[3]);
+                }   
+                
+                if (grossSalaryTotal >= min && grossSalaryTotal <=max){
+                    return contribution;
+                    
+                }
+            } 
+        }
+        catch(IOException e){
+            e.printStackTrace();}
+    return contribution;
 }
 
+static double contributionPhilHealth (double grossSalaryTotal, double premium){
+    return grossSalaryTotal*(premium/2);
+}
+
+}
