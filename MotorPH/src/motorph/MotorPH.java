@@ -145,10 +145,16 @@ public class MotorPH4 {
             double hours2=0;
             double grossSalary1 =0;
             double grossSalary2 =0;
+            double grossSalaryTotal =0;
             double netSalary1 =0;
             double netSalary2 =0;
-            double grossSalaryTotal =0;
             double sss=0;
+            double philHealthPremium = 0.03;
+            double philHealth = 0;
+            double pagIBIG=0;
+            double deductionsTotal=0;
+            double tax = 0;
+            double taxableIncome = 0;
             
             
             
@@ -193,7 +199,13 @@ public class MotorPH4 {
             grossSalary1 = computeGrossSalary(hours1,hourlyRate);
             grossSalary2 = computeGrossSalary(hours2,hourlyRate);
             grossSalaryTotal = grossSalary1 + grossSalary2;
-            sss = contributionSSS(grossSalaryTotal);
+            sss = computeSSS(grossSalaryTotal);
+            philHealth = computePhilHealth(grossSalaryTotal, philHealthPremium);
+            pagIBIG = computePagIBIG(grossSalaryTotal);
+            deductionsTotal = sss + philHealth + pagIBIG;
+            taxableIncome = grossSalaryTotal - deductionsTotal;
+            tax = computeTax(taxableIncome);
+            netSalary2 = grossSalary2 - deductionsTotal - tax;
             
             System.out.println("\nHourly Rate: "+hourlyRate);
             System.out.println("\nCutoff Date: " +monthName + " 1 to 15");
@@ -206,10 +218,10 @@ public class MotorPH4 {
             System.out.println("Gross Salary: "+grossSalary2);
             System.out.println("Deductions: ");
             System.out.println("    SSS: "+sss);
-            System.out.println("    PhilHealth: ");
-            System.out.println("    Pag-IBIG: ");
-            System.out.println("    Tax: ");
-            System.out.println("Net Salary: ");
+            System.out.println("    PhilHealth: "+philHealth);
+            System.out.println("    Pag-IBIG: " + pagIBIG);
+            System.out.println("    Tax: "+tax);
+            System.out.println("Net Salary: "+netSalary2);
             
         }
          //end of for loop
@@ -252,11 +264,10 @@ static double computeGrossSalary(double hours, double hourlyRate){
     return hours*hourlyRate;
 }
 
-static double contributionSSS(double grossSalaryTotal){
+static double computeSSS(double grossSalaryTotal){
     String sssTable = "resources//SSSContribution.csv";
     double min =0;
     double max=0;
-    double conTable=0;
     double contribution=0;
     if (grossSalaryTotal<3250){return 135.00;}
     if (grossSalaryTotal>=24750){return 1125.00;}
@@ -266,24 +277,56 @@ static double contributionSSS(double grossSalaryTotal){
             String line;
             while ((line=br.readLine())!=null){
                 String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                for (int i = 0; i < data.length; i++) {
-                    data[i] = data[i].replaceAll("^\"|\"$", "").trim().replace(",", "");
-                }   
-               
-                for (int i = 0;i<(data.length-1);i++){
-                    min = Double.parseDouble(data[0]);
-                    max = Double.parseDouble(data[2]);
-                    conTable = Double.parseDouble(data[3]);
-                }   
-                
+                for (int i = 0; i < data.length-1; i++) {
+                    data[i] = data[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); 
+                }  
+                min = Double.parseDouble(data[0]);
+                max = Double.parseDouble(data[2]);
+                contribution = Double.parseDouble(data[3]);
                 if (grossSalaryTotal >= min && grossSalaryTotal <=max){
-                    contribution = conTable;
-                    break;
+                return contribution;
                 }
             } 
         }
         catch(IOException e){
             e.printStackTrace();}
+    return contribution;
+}
+
+static double computePhilHealth (double grossSalaryTotal, double premium){
+    return grossSalaryTotal*(premium/2);
+}
+
+static double computePagIBIG (double grossSalaryTotal){
+    double contribution = 0;
+    if (grossSalaryTotal<1000.0)return 0;
+    if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
+        contribution = grossSalaryTotal*0.01;}
+    if (grossSalaryTotal > 1500.0){
+        contribution = grossSalaryTotal*0.02;}
+    
+    if (contribution > 100)return 100.0;
+    
+    return contribution;
+}
+static double computeTax(double taxableIncome){
+    double contribution=0;
+    if (taxableIncome<20833)return 0;
+    if (taxableIncome>=20833 && taxableIncome<33333){
+        contribution = (taxableIncome - 20833)*0.20;
+    }
+    if (taxableIncome>=33333 && taxableIncome<66667){
+        contribution = 2500 + ((taxableIncome - 33333)*0.25);
+    }
+    if (taxableIncome>=66667 && taxableIncome<166667){
+        contribution = 10833 + ((taxableIncome - 66667)*0.30);
+    }
+    if (taxableIncome>=166667 && taxableIncome<666667){
+        contribution = 40833.33 + ((taxableIncome - 166667)*0.32);
+    }
+    if (taxableIncome>=666667 ){
+        contribution = 200833.33 + ((taxableIncome - 666667)*0.35);
+    }
     return contribution;
 }
 }
