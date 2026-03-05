@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.YearMonth;
 
-public class MotorPH4 {
+public class MotorPH {
     public static void main(String[]args){
         
         String employeeDetails = "resources//EmployeeDetails.csv";
@@ -330,3 +330,4 @@ static double computeTax(double taxableIncome){
     return contribution;
 }
 }
+
