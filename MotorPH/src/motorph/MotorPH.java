@@ -8,13 +8,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.YearMonth;
 
-public class MotorPH4 {
+public class MotorPH5 {
     public static void main(String[]args){
         
-        String employeeDetails = "resources//EmployeeDetails.csv";
-        String attendance = "resources//AttendanceRecord.csv";
-        
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
         String username ="";
         Scanner scanner = new Scanner(System.in);
         
@@ -54,31 +50,7 @@ public class MotorPH4 {
         
         //Employee: Display Employee Details
         if (username.equals("employee")&&option.equals("1")){
-            while (true){
-        System.out.print("Enter Employee Number: ");
-        String empNumInput = scanner.nextLine();
-        if (empNumInput.equals("exit"))System.exit(0);
-        boolean found = false;
-        try(BufferedReader br = new BufferedReader(new FileReader(employeeDetails))){
-            br.readLine();
-            String line;
-            while ((line=br.readLine())!=null){
-                String[] data = line.split(",");
-                if (data[0].equals(empNumInput)){
-                    found = true;
-                    System.out.println("Employee Number: "+data[0]);
-                    System.out.println("Name: "+data[1] +", "+data[2]);
-                    System.out.println("Birthday: "+data[3]);
-                    break;
-                }
-            }  
-        }
-        catch(IOException e){
-            e.printStackTrace();}
-        if (!found){
-            System.out.println("Employee Number not found.");}
-            }
-        }
+            processPayroll(scanner, true, true);}
         
         
         //Payroll Staff: Display Process Payroll sub-options
@@ -99,17 +71,43 @@ public class MotorPH4 {
         }
         
         //Payroll Staff: Process payroll for one employee
-        if (option2.equals("1")){
+        if (option2.equals("1")){processPayroll(scanner, false, true);}
+        if(option2.equals("2")){processPayroll(scanner, false, false);}
+        if(option2.equals("3")){System.exit(0);}
+        
+        
+        scanner.close();
+    }
+
+//Methods
+static void processPayroll(Scanner scanner, boolean displayOnly, boolean oneEmpOnly){
+        String employeeDetails = "resources//EmployeeDetails.csv";
+        String attendance = "resources//AttendanceRecord.csv";
+        
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
             String empNumber="";
             String lastName="";
             String firstName="";
             String birthday="";
             double hourlyRate=0;
             //Process payroll one employee: Display employee details
+            
+        String empNumInput="";
+        int empCounter = 10000;
+        int empLast = 10034;
+        
         while (true){
+        empCounter ++;
+        if (oneEmpOnly == false){
+        String empString = String.valueOf(empCounter);
+        empNumInput = empString;
+            if (empCounter>empLast)return;
+        }
+        if (oneEmpOnly == true){
         System.out.print("Enter Employee Number: ");
-        String empNumInput = scanner.nextLine();
-        if (empNumInput.equals("exit")){System.exit(0);}
+        empNumInput = scanner.nextLine();
+        if (empNumInput.equals("exit"))System.exit(0);
+        }
         boolean found = false;
         try(BufferedReader br = new BufferedReader(new FileReader(employeeDetails))){
             br.readLine();
@@ -135,9 +133,10 @@ public class MotorPH4 {
         if (!found){
             System.out.println("Employee Number not found.");continue;}
             
-        System.out.println("Employee Number: "+empNumber);
+        System.out.println("\nEmployee Number: "+empNumber);
         System.out.println("Name: "+lastName +", "+firstName);
         System.out.println("Birthday: "+birthday);      
+        if (displayOnly == true)continue;
         
             //Process payroll one employee: calculations
         for (int month=6;month <=12;month++){
@@ -145,16 +144,16 @@ public class MotorPH4 {
             double hours2=0;
             double grossSalary1 =0;
             double grossSalary2 =0;
+            double grossSalaryTotal =0;
             double netSalary1 =0;
             double netSalary2 =0;
-            double grossSalaryTotal =0;
             double sss=0;
             double philHealthPremium = 0.03;
             double philHealth = 0;
             double pagIBIG=0;
-            
-            
-            
+            double deductionsTotal=0;
+            double tax = 0;
+            double taxableIncome = 0;
             
             int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();
             try (BufferedReader br = new BufferedReader(new FileReader(attendance))){
@@ -196,9 +195,13 @@ public class MotorPH4 {
             grossSalary1 = computeGrossSalary(hours1,hourlyRate);
             grossSalary2 = computeGrossSalary(hours2,hourlyRate);
             grossSalaryTotal = grossSalary1 + grossSalary2;
-            sss = contributionSSS(grossSalaryTotal);
-            philHealth = contributionPhilHealth(grossSalaryTotal, philHealthPremium);
-            pagIBIG = contributionPagIBIG(grossSalaryTotal);
+            sss = computeSSS(grossSalaryTotal);
+            philHealth = computePhilHealth(grossSalaryTotal, philHealthPremium);
+            pagIBIG = computePagIBIG(grossSalaryTotal);
+            deductionsTotal = sss + philHealth + pagIBIG;
+            taxableIncome = grossSalaryTotal - deductionsTotal;
+            tax = computeTax(taxableIncome);
+            netSalary2 = grossSalary2 - deductionsTotal - tax;
             
             System.out.println("\nHourly Rate: "+hourlyRate);
             System.out.println("\nCutoff Date: " +monthName + " 1 to 15");
@@ -213,24 +216,14 @@ public class MotorPH4 {
             System.out.println("    SSS: "+sss);
             System.out.println("    PhilHealth: "+philHealth);
             System.out.println("    Pag-IBIG: " + pagIBIG);
-            System.out.println("    Tax: ");
-            System.out.println("Net Salary: ");
+            System.out.println("    Tax: "+tax);
+            System.out.println("Net Salary: "+netSalary2);
             
         }
          //end of for loop
-        
-        }}//end of process one employee
-        
-        
-        if(option2.equals("2")){System.out.println("2!!");}
-        if(option2.equals("3")){System.exit(0);}
-        
-        
-        scanner.close();
-    }
+        }//end of process one employee
+}
 
-//Methods
-    
 static double computeHours(LocalTime login, LocalTime logout){
     LocalTime graceTime = LocalTime.of(8,10);
     LocalTime startTime = LocalTime.of(8,0);
@@ -257,7 +250,7 @@ static double computeGrossSalary(double hours, double hourlyRate){
     return hours*hourlyRate;
 }
 
-static double contributionSSS(double grossSalaryTotal){
+static double computeSSS(double grossSalaryTotal){
     String sssTable = "resources//SSSContribution.csv";
     double min =0;
     double max=0;
@@ -271,18 +264,13 @@ static double contributionSSS(double grossSalaryTotal){
             while ((line=br.readLine())!=null){
                 String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                 for (int i = 0; i < data.length; i++) {
-                    data[i] = data[i].replaceAll("^\"|\"$", "").trim().replace(",", "");
-                }   
-               
-                for (int i = 0;i<(data.length-1);i++){
-                    min = Double.parseDouble(data[0]);
-                    max = Double.parseDouble(data[2]);
-                    contribution = Double.parseDouble(data[3]);
-                }   
-                
+                    data[i] = data[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); 
+                }  
+                min = Double.parseDouble(data[0]);
+                max = Double.parseDouble(data[2]);
+                contribution = Double.parseDouble(data[3]);
                 if (grossSalaryTotal >= min && grossSalaryTotal <=max){
-                    return contribution;
-                    
+                return contribution;
                 }
             } 
         }
@@ -291,11 +279,11 @@ static double contributionSSS(double grossSalaryTotal){
     return contribution;
 }
 
-static double contributionPhilHealth (double grossSalaryTotal, double premium){
+static double computePhilHealth (double grossSalaryTotal, double premium){
     return grossSalaryTotal*(premium/2);
 }
 
-static double contributionPagIBIG (double grossSalaryTotal){
+static double computePagIBIG (double grossSalaryTotal){
     double contribution = 0;
     if (grossSalaryTotal<1000.0)return 0;
     if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
@@ -305,6 +293,26 @@ static double contributionPagIBIG (double grossSalaryTotal){
     
     if (contribution > 100)return 100.0;
     
+    return contribution;
+}
+static double computeTax(double taxableIncome){
+    double contribution=0;
+    if (taxableIncome<20833)return 0;
+    if (taxableIncome>=20833 && taxableIncome<33333){
+        contribution = (taxableIncome - 20833)*0.20;
+    }
+    if (taxableIncome>=33333 && taxableIncome<66667){
+        contribution = 2500 + ((taxableIncome - 33333)*0.25);
+    }
+    if (taxableIncome>=66667 && taxableIncome<166667){
+        contribution = 10833 + ((taxableIncome - 66667)*0.30);
+    }
+    if (taxableIncome>=166667 && taxableIncome<666667){
+        contribution = 40833.33 + ((taxableIncome - 166667)*0.32);
+    }
+    if (taxableIncome>=666667 ){
+        contribution = 200833.33 + ((taxableIncome - 666667)*0.35);
+    }
     return contribution;
 }
 }
