@@ -226,7 +226,7 @@ static void processPayrollOne(Scanner scanner){
             grossSalary2 = computeGrossSalary(hours2,hourlyRate);
             grossSalaryTotal = grossSalary1 + grossSalary2;
             sss = computeSSS(grossSalaryTotal);
-            philHealth = computePhilHealth(grossSalaryTotal, philHealthPremium);
+            philHealth = computePhilHealth(grossSalaryTotal);
             pagIBIG = computePagIBIG(grossSalaryTotal);
             deductionsTotal = sss + philHealth + pagIBIG;
             taxableIncome = grossSalaryTotal - deductionsTotal;
@@ -292,7 +292,6 @@ static void processPayrollAll(Scanner scanner){
                     for (int i = 0; i < empDetailsRow.length; i++) {
                         empDetailsRow[i] = empDetailsRow[i].replaceAll("^\"|\"$", "").trim();
                     }if (empDetailsRow[0].equals(empNumber)){
-                        empNumber = empDetailsRow[0];
                         lastName = empDetailsRow[1];
                         firstName = empDetailsRow[2];
                         birthday = empDetailsRow[3];
@@ -320,7 +319,6 @@ static void processPayrollAll(Scanner scanner){
                 double netSalary1 =0;
                 double netSalary2 =0;
                 double sss=0;
-                double philHealthPremium = 0.03;
                 double philHealth = 0;
                 double pagIBIG=0;
                 double deductionsTotal=0;
@@ -335,8 +333,7 @@ static void processPayrollAll(Scanner scanner){
 
                         if(line.trim().isEmpty())continue;
                         String[] attendanceRow = line.split(",");
-                        String empNumberString = String.valueOf(empNumber);
-                        if(!attendanceRow[0].equals(empNumberString))continue;
+                        if(!attendanceRow[0].equals(empNumber))continue;
                         String[] dateParts = attendanceRow[3].split("/");
                         int recordMonth = Integer.parseInt(dateParts[0]);
                         int day = Integer.parseInt(dateParts[1]);
@@ -370,7 +367,7 @@ static void processPayrollAll(Scanner scanner){
                 grossSalary2 = computeGrossSalary(hours2,hourlyRate);
                 grossSalaryTotal = grossSalary1 + grossSalary2;
                 sss = computeSSS(grossSalaryTotal);
-                philHealth = computePhilHealth(grossSalaryTotal, philHealthPremium);
+                philHealth = computePhilHealth(grossSalaryTotal);
                 pagIBIG = computePagIBIG(grossSalaryTotal);
                 deductionsTotal = sss + philHealth + pagIBIG;
                 taxableIncome = grossSalaryTotal - deductionsTotal;
@@ -453,7 +450,8 @@ static double computeSSS(double grossSalaryTotal){
     return contribution;
 }
 
-static double computePhilHealth (double grossSalaryTotal, double premium){
+static double computePhilHealth (double grossSalaryTotal){
+    double premium = 0.03;
     return grossSalaryTotal*(premium/2);
 }
 
@@ -486,5 +484,6 @@ static double computeTax(double taxableIncome){
     }
     return contribution;
 }
+
 }
 
