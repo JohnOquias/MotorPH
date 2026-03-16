@@ -108,9 +108,12 @@ static void displayEmpDetails(Scanner scanner){
         }if (!found){System.out.println("Employee Number does not exit.");
             return;
         }
+        System.out.println("-".repeat(100));
         System.out.println("\nEmployee Number: "+empNumber);
         System.out.println("Name: "+lastName +", "+firstName);
         System.out.println("Birthday: "+birthday);
+        System.out.println("");
+        System.out.println("-".repeat(100));
 }   
 
 static void processPayrollOne(Scanner scanner){
