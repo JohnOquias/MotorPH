@@ -402,9 +402,10 @@ static double computeHours(LocalTime login, LocalTime logout){
     
     if (!login.isAfter(graceTime)){
         login = startTime;
-    }
-    if (logout.isAfter(cutoffTime)){
+    }if (logout.isAfter(cutoffTime)){
         logout=cutoffTime;
+    }if (!logout.isAfter(startTime)){
+        return 0;
     }
     long minutesWorked = Duration.between(login, logout).toMinutes();
     if (minutesWorked > 60){
