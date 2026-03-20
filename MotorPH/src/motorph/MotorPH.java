@@ -11,17 +11,19 @@ import java.util.ArrayList;
 public class MotorPH {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter Username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter Password: ");
-        String password = scanner.nextLine();
-        
-        if (!username.equals("employee") && !username.equals("payroll_staff")){
-            System.out.println("Incorrect username and/or password.");
-            return;
-        }if (!password.equals("12345")){
-            System.out.println("Incorrect username and/or password.");
-            return;
+        String username = "";
+        while (true){
+            System.out.print("Enter Username: ");
+            username = scanner.nextLine();
+            System.out.print("Enter Password: ");
+            String password = scanner.nextLine();
+            if (!username.equals("employee") && !username.equals("payroll_staff")){
+                System.out.println("Incorrect username and/or password.");
+                continue;
+            }if (!password.equals("12345")){
+                System.out.println("Incorrect username and/or password.");
+                continue;
+            }break;
         }
         
         ArrayList<String> empNumberList = new ArrayList<>();
@@ -44,53 +46,64 @@ public class MotorPH {
     }
     
     static void runPayrollStaffMenu(Scanner scanner, ArrayList<String> empNumberList, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
-        String payrollStaffOption1 ="";
         System.out.println("\nChoose an option");
-        System.out.println("1. Process Payroll");
-        System.out.println("2. Exit the program");   
-        System.out.print("Enter number: ");
-        payrollStaffOption1 = scanner.nextLine();
+        String payrollStaffOption1="";
         String payrollStaffOption2="";
-        if (payrollStaffOption1.equals("1")){
-            System.out.println("\nChoose an option");
-            System.out.println("1. One Employee");
-            System.out.println("2. All Employees"); 
-            System.out.println("3. Exit the program"); 
+        while (true){
+            System.out.println("1. Process Payroll");
+            System.out.println("2. Exit the program");   
             System.out.print("Enter option: ");
-            payrollStaffOption2 = scanner.nextLine();
-        }else if (payrollStaffOption1.equals("2"))System.exit(0);
-        else{System.out.println("Invalid option");
-            return;
-        }
-
-        if(payrollStaffOption2.equals("1")){
-            System.out.print("Enter Employee Number: ");
-            String empNumber = scanner.nextLine();
-            processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);}
-        else if(payrollStaffOption2.equals("2")){
-            System.out.println("-".repeat(100));
-            for (String empNumber:empNumberList){
-                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
-            }   
-            System.out.println("-".repeat(100));}
-        else if(payrollStaffOption2.equals("3")){System.exit(0);}
-        else {System.out.println("Invalid option");
-        }
+            payrollStaffOption1 = scanner.nextLine();
+            
+            if (payrollStaffOption1.equals("1")){
+                System.out.println("\nChoose an option");
+                while (true){
+                    System.out.println("1. One Employee");
+                    System.out.println("2. All Employees"); 
+                    System.out.println("3. Exit the program"); 
+                    System.out.print("Enter option: ");
+                    payrollStaffOption2 = scanner.nextLine();
+                    if(payrollStaffOption2.equals("1")){
+                        while (true){
+                            System.out.print("Enter Employee Number: ");
+                            String empNumber = scanner.nextLine();
+                            processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                        }    
+                    }else if(payrollStaffOption2.equals("2")){
+                        System.out.println("-".repeat(100));
+                        for (String empNumber:empNumberList){
+                            processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                        }   
+                        System.out.println("-".repeat(100));
+                        return;
+                    }else if(payrollStaffOption2.equals("3")){System.exit(0);
+                    }else {System.out.println("Invalid option");
+                    }
+                }  
+            }else if (payrollStaffOption1.equals("2"))System.exit(0);
+            else{System.out.println("Invalid option"); 
+            }
+        }   
+        
+        
     }
     
     static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
         System.out.println("\nChoose an option");
-        System.out.println("1. Enter your employee number");
-        System.out.println("2. Exit the program");   
-        System.out.print("Enter option: ");
-        String employeeOption = scanner.nextLine();
-        if (employeeOption.equals("1")){
-            System.out.print("Enter Employee Number: ");
-            String empNumInput = scanner.nextLine();
-            displayEmpDetails(empNumInput, empDetailsTable);
-        }else if (employeeOption.equals("2")){System.exit(0);
-        }else{System.out.println("Invalid option");
-        }
+        while (true){
+            System.out.println("1. Enter your employee number");
+            System.out.println("2. Exit the program");   
+            System.out.print("Enter option: ");
+            String employeeOption = scanner.nextLine();
+            if (employeeOption.equals("1")){
+                System.out.print("Enter Employee Number: ");
+                String empNumInput = scanner.nextLine();
+                displayEmpDetails(empNumInput, empDetailsTable);
+                break;
+            }else if (employeeOption.equals("2")){System.exit(0);
+            }else{System.out.println("Invalid option");
+            }
+        }    
     }
             
     
@@ -154,7 +167,7 @@ public class MotorPH {
         double hourlyRate =0;
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
        
-        
+        boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
             empNumber = empDetailsRow[0];
@@ -162,7 +175,10 @@ public class MotorPH {
             firstName = empDetailsRow[2];
             birthday = empDetailsRow[3];
             hourlyRate = Double.parseDouble(empDetailsRow[18]);
+            found = true;
+        }if (!found){System.out.println("Employee Number does not exist.");return;
         }
+        
         
         System.out.println("-".repeat(100));
         System.out.println("Employee Number: "+empNumber);
