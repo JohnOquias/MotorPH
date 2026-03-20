@@ -58,24 +58,25 @@ public class MotorPH {
             System.out.println("3. Exit the program"); 
             System.out.print("Enter option: ");
             payrollStaffOption2 = scanner.nextLine();
+            if(payrollStaffOption2.equals("1")){
+                System.out.print("Enter Employee Number: ");
+                String empNumber = scanner.nextLine();
+                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);}
+            else if(payrollStaffOption2.equals("2")){
+                System.out.println("-".repeat(100));
+                for (String empNumber:empNumberList){
+                    processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                }   
+                System.out.println("-".repeat(100));}
+            else if(payrollStaffOption2.equals("3")){System.exit(0);}
+            else {System.out.println("Invalid option");
+            }
         }else if (payrollStaffOption1.equals("2"))System.exit(0);
         else{System.out.println("Invalid option");
             return;
         }
 
-        if(payrollStaffOption2.equals("1")){
-            System.out.print("Enter Employee Number: ");
-            String empNumber = scanner.nextLine();
-            processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);}
-        else if(payrollStaffOption2.equals("2")){
-            System.out.println("-".repeat(100));
-            for (String empNumber:empNumberList){
-                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
-            }   
-            System.out.println("-".repeat(100));}
-        else if(payrollStaffOption2.equals("3")){System.exit(0);}
-        else {System.out.println("Invalid option");
-        }
+       
     }
     
     static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
@@ -154,7 +155,7 @@ public class MotorPH {
         double hourlyRate =0;
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
        
-        
+        boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
             empNumber = empDetailsRow[0];
@@ -162,6 +163,8 @@ public class MotorPH {
             firstName = empDetailsRow[2];
             birthday = empDetailsRow[3];
             hourlyRate = Double.parseDouble(empDetailsRow[18]);
+            found = true;
+        }if (!found){System.out.println("Employee Number does not exist.");return;
         }
         
         System.out.println("-".repeat(100));
