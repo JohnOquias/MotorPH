@@ -15,7 +15,7 @@ public class MotorPH {
         String username = scanner.nextLine();
         System.out.print("Enter Password: ");
         String password = scanner.nextLine();
-        
+
         if (!username.equals("employee") && !username.equals("payroll_staff")){
             System.out.println("Incorrect username and/or password.");
             return;
@@ -23,29 +23,29 @@ public class MotorPH {
             System.out.println("Incorrect username and/or password.");
             return;
         }
-        
+
         ArrayList<String> empNumberList = new ArrayList<>();
         ArrayList<String[]> empDetailsTable = new ArrayList<>();
         loadEmpDetails(empDetailsTable,empNumberList);
-        
+
         if (username.equals("employee")){
             runEmployeeMenu(scanner, empDetailsTable);
             return;
         }
-        
+
         ArrayList<String[]> attendanceTable = new ArrayList<>();
         ArrayList<String[]> sssTable = new ArrayList<>();
         loadAttendance(attendanceTable);
         loadSSSTable(sssTable);
-        
+
         if (username.equals("payroll_staff")){
             runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);
             return;
         }
-        
+
         scanner.close();
     }
-    
+
     static void runPayrollStaffMenu(Scanner scanner, ArrayList<String> empNumberList, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
         System.out.println("\nChoose an option");
         System.out.println("1. Process Payroll");
@@ -62,17 +62,14 @@ public class MotorPH {
             if(payrollStaffOption2.equals("1")){
                 System.out.print("Enter Employee Number: ");
                 String empNumber = scanner.nextLine();
-                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);}
-            else if(payrollStaffOption2.equals("2")){
+                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+            }else if(payrollStaffOption2.equals("2")){
                 System.out.println("-".repeat(100));
                 for (String empNumber:empNumberList){
-                    try{
-                        processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
-                    }catch (Exception e) {
-                        System.err.println("FAILED to process Employee " + empNumber + ": " + e.getMessage());
-                    }   
+                    processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
                 }    
-                System.out.println("-".repeat(100));}
+                System.out.println("-".repeat(100));
+            }
             else if(payrollStaffOption2.equals("3")){System.exit(0);}
             else {System.out.println("Invalid option");
             }
@@ -80,9 +77,9 @@ public class MotorPH {
         else{System.out.println("Invalid option");
         }
 
-       
+
     }
-    
+
     static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
         System.out.println("\nChoose an option");
         System.out.println("1. Enter your employee number");
@@ -97,8 +94,8 @@ public class MotorPH {
         }else{System.out.println("Invalid option");
         }
     }
-            
-    
+
+
     static void loadEmpDetails(ArrayList<String[]> empDetailsTable,ArrayList<String> empNumberList ){
         String empDetailsFilePath = "resources//EmployeeDetails.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(empDetailsFilePath))){
@@ -124,10 +121,8 @@ public class MotorPH {
             System.exit(1);
         }
     }
-    
-    
-   
-    
+
+
     static void loadAttendance(ArrayList<String[]> attendanceTable){
         String attendanceFilePath = "resources//AttendanceRecord.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(attendanceFilePath))){
@@ -149,7 +144,7 @@ public class MotorPH {
             System.exit(1);
         }
     }
-    
+
     static void loadSSSTable(ArrayList<String[]> sssTable){
         String sssTableFilePath = "resources//SSSContribution.csv";
         try(BufferedReader br = new BufferedReader(new FileReader(sssTableFilePath))){
@@ -174,14 +169,14 @@ public class MotorPH {
             System.exit(1);
         }
     }
-    
+
     static void processPayroll(String empNumber, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
         String lastName ="";
         String firstName ="";
         String birthday ="";
         double hourlyRate =0;
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
-       
+
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
@@ -193,18 +188,19 @@ public class MotorPH {
             try{    
                 hourlyRate = Double.parseDouble(empDetailsRow[18]);
             }catch (NumberFormatException e) {
-                System.err.println("SKIPPING ROW: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
+                System.err.println("Number Format Error: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
+                return;
             }   
                 break;
         }if (!found){System.out.println("Employee Number does not exist.");return;
         }
-        
+
         System.out.println("-".repeat(100));
         System.out.println("Employee Number: "+empNumber);
         System.out.println("Name: "+ lastName + ", " + firstName);
         System.out.println("Birthday: "+birthday);
         System.out.println("-".repeat(100));
-       
+
         for (int month=6;month <=12;month++){
             double[] monthlyHours = computeHoursMonthly(attendanceTable, empNumber, timeFormat, month);
             double hours1 = monthlyHours[0];
@@ -222,7 +218,7 @@ public class MotorPH {
             double netSalary2 = grossSalary2 - deductionsTotal - tax;
             String monthName = getMonthName(month);
             int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();
-            
+
             System.out.println("Cutoff Date: " +monthName + " 1 to 15");
             System.out.println("Total Hours Worked: " +hours1);
             System.out.println("Gross Salary: "+grossSalary1);
@@ -238,10 +234,10 @@ public class MotorPH {
             System.out.println("    Tax: "+tax);
             System.out.println("Net Salary: "+netSalary2);
             System.out.println("-".repeat(100));
-            
+
         }
     } 
-    
+
     static String getMonthName (int month){
         if (month == 6)  return "June";
         if (month == 7)  return "July";
@@ -252,7 +248,7 @@ public class MotorPH {
         if (month == 12) return "December";
         return "Month "+month;    
     }
-            
+
     static double[] computeHoursMonthly(ArrayList<String[]> attendanceTable, String empNumber, DateTimeFormatter timeFormat, int month){
         double hours1=0;
         double hours2=0;
@@ -271,9 +267,9 @@ public class MotorPH {
         }double[] monthlyHours = {hours1,hours2};
         return monthlyHours;
     }
-    
-   
-    
+
+
+
     static void displayEmpDetails(String empNumber, ArrayList<String[]> empDetailsTable ){
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
@@ -288,7 +284,7 @@ public class MotorPH {
         }if (!found){System.out.println("Employee Number does not exist.");
         }
     }
-    
+
     static double computeHours(LocalTime login, LocalTime logout){
         LocalTime graceTime = LocalTime.of(8,10);
         LocalTime startTime = LocalTime.of(8,0);
@@ -308,7 +304,7 @@ public class MotorPH {
             minutesWorked = 0;
         }
         double hours = minutesWorked / 60.0;
-        
+
         if (hours>8.0)return 8.0;
         return hours;
     }  
@@ -316,8 +312,8 @@ public class MotorPH {
     static double computeGrossSalary(double hours, double hourlyRate){
         return hours*hourlyRate;
     }
-    
-    
+
+
     static double computeSSS(double grossSalaryTotal, ArrayList<String[]> sssTable){
         double contribution = 0;
         if (grossSalaryTotal<3250.0)return 135.00;
