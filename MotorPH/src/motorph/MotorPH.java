@@ -12,9 +12,9 @@ public class MotorPH {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter Username: ");
-        String username = scanner.nextLine();
+        String username = scanner.nextLine();//username input
         System.out.print("Enter Password: ");
-        String password = scanner.nextLine();
+        String password = scanner.nextLine();//password input
 
         if (!username.equals("employee") && !username.equals("payroll_staff")){
             System.out.println("Incorrect username and/or password.");
@@ -24,48 +24,63 @@ public class MotorPH {
             return;
         }
 
-        ArrayList<String> empNumberList = new ArrayList<>();
-        ArrayList<String[]> empDetailsTable = new ArrayList<>();
-        loadEmpDetails(empDetailsTable,empNumberList);
+        ArrayList<String> empNumberList = new ArrayList<>();//Employee Number storage
+        ArrayList<String[]> empDetailsTable = new ArrayList<>();// employee details storage
+        loadEmpDetails(empDetailsTable,empNumberList);//read employee details and store to the ArrayLists above
 
         if (username.equals("employee")){
-            runEmployeeMenu(scanner, empDetailsTable);
+            runEmployeeMenu(scanner, empDetailsTable);// call method for employee menu 
             return;
         }
 
-        ArrayList<String[]> attendanceTable = new ArrayList<>();
-        ArrayList<String[]> sssTable = new ArrayList<>();
-        loadAttendance(attendanceTable);
-        loadSSSTable(sssTable);
+        ArrayList<String[]> attendanceTable = new ArrayList<>();// attendance records storage
+        ArrayList<String[]> sssTable = new ArrayList<>();// sss table storage
+        loadAttendance(attendanceTable);//read attendance recods and store to the ArrayLists above
+        loadSSSTable(sssTable);//read SSS table and store to the ArrayLists above
 
         if (username.equals("payroll_staff")){
-            runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);
+            runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);//call method for payroll staff menu 
             return;
         }
 
         scanner.close();
     }
 
+    static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
+        System.out.println("\nChoose an option");//display employee menu 
+        System.out.println("1. Enter your employee number");
+        System.out.println("2. Exit the program");   
+        System.out.print("Enter option: ");
+        String employeeOption = scanner.nextLine();//employee: menu option input
+        if (employeeOption.equals("1")){
+            System.out.print("Enter Employee Number: ");
+            String empNumber = scanner.nextLine();//employee: employee number input
+            displayEmpDetails(empNumber, empDetailsTable);//call method for displaying employee details 
+        }else if (employeeOption.equals("2")){System.exit(0);
+        }else{System.out.println("Invalid option");
+        }
+    }
+    
     static void runPayrollStaffMenu(Scanner scanner, ArrayList<String> empNumberList, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
-        System.out.println("\nChoose an option");
+        System.out.println("\nChoose an option");//display payroll staff menu 
         System.out.println("1. Process Payroll");
         System.out.println("2. Exit the program");   
         System.out.print("Enter number: ");
-        String payrollStaffOption1 = scanner.nextLine();
+        String payrollStaffOption1 = scanner.nextLine();//payroll staff: menu option input
         if (payrollStaffOption1.equals("1")){
-            System.out.println("\nChoose an option");
+            System.out.println("\nChoose an option");//display payroll staff sub-menu
             System.out.println("1. One Employee");
             System.out.println("2. All Employees"); 
             System.out.println("3. Exit the program"); 
             System.out.print("Enter option: ");
-            String payrollStaffOption2 = scanner.nextLine();
+            String payrollStaffOption2 = scanner.nextLine();//payroll staff: sub-menu option input
             if(payrollStaffOption2.equals("1")){
                 System.out.print("Enter Employee Number: ");
-                String empNumber = scanner.nextLine();
-                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                String empNumber = scanner.nextLine();//payroll staff: employee number input
+                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);//call method for processing payroll
             }else if(payrollStaffOption2.equals("2")){
-                System.out.println("-".repeat(100));
-                for (String empNumber:empNumberList){
+                System.out.println("-".repeat(100));//visual separator
+                for (String empNumber:empNumberList){//looping through every employee
                     processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
                 }    
                 System.out.println("-".repeat(100));
@@ -76,25 +91,95 @@ public class MotorPH {
         }else if (payrollStaffOption1.equals("2"))System.exit(0);
         else{System.out.println("Invalid option");
         }
-
-
     }
-
-    static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
-        System.out.println("\nChoose an option");
-        System.out.println("1. Enter your employee number");
-        System.out.println("2. Exit the program");   
-        System.out.print("Enter option: ");
-        String employeeOption = scanner.nextLine();
-        if (employeeOption.equals("1")){
-            System.out.print("Enter Employee Number: ");
-            String empNumber = scanner.nextLine();
-            displayEmpDetails(empNumber, empDetailsTable);
-        }else if (employeeOption.equals("2")){System.exit(0);
-        }else{System.out.println("Invalid option");
+    
+    static void displayEmpDetails(String empNumber, ArrayList<String[]> empDetailsTable ){
+        boolean found = false;
+        for (String[] empDetailsRow: empDetailsTable){
+            if (!empNumber.equals(empDetailsRow[0]))continue;
+                System.out.println("-".repeat(100));
+                System.out.println("Employee Number: "+empDetailsRow[0]);
+                System.out.println("Name: "+ empDetailsRow[1] + "," + empDetailsRow[2]);
+                System.out.println("Birthday: "+empDetailsRow[3]);
+                System.out.println("-".repeat(100));
+                found = true;
+                break;
+        }if (!found){System.out.println("Employee Number does not exist.");
         }
     }
+    
+    static void processPayroll(String empNumber, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
+        String lastName ="";
+        String firstName ="";
+        String birthday ="";
+        double hourlyRate =0;
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
+        
+        //search for employee number match
+        boolean found = false;
+        for (String[] empDetailsRow: empDetailsTable){
+            if (!empNumber.equals(empDetailsRow[0]))continue;
+            found = true;
+            empNumber = empDetailsRow[0];
+            lastName = empDetailsRow[1];
+            firstName = empDetailsRow[2];
+            birthday = empDetailsRow[3];
+            try{    
+                hourlyRate = Double.parseDouble(empDetailsRow[18]);
+            }catch (NumberFormatException e) {//If there is a number format error for hourly rate, display error message, close method
+                System.err.println("Number Format Error: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
+                return;
+            }   
+                break;
+        }if (!found){System.out.println("Employee Number does not exist.");return;
+        }
+        
+        //display employee details
+        System.out.println("-".repeat(100));
+        System.out.println("Employee Number: "+empNumber);
+        System.out.println("Name: "+ lastName + ", " + firstName);
+        System.out.println("Birthday: "+birthday);
+        System.out.println("-".repeat(100));
+        
+        //looping through each month (June - December)
+        for (int month=6;month <=12;month++){
+            double[] monthlyHours = computeHoursMonthly(attendanceTable, empNumber, timeFormat, month);//A double array is returned by the method that computes for monthly hours
+            double hours1 = monthlyHours[0];//number of hours worked for the first half of the month
+            double hours2 = monthlyHours[1];//number of hours worked for the second half of the month
+            double grossSalary1 = computeGrossSalary(hours1, hourlyRate);
+            double netSalary1 = grossSalary1;//no deductions for the first half of the month
+            double grossSalary2 = computeGrossSalary(hours2, hourlyRate);
+            double grossSalaryTotal = grossSalary1 + grossSalary2;
+            double sss = computeSSS(grossSalaryTotal, sssTable);
+            double philHealth = computePhilHealth(grossSalaryTotal);
+            double pagIBIG = computePagIBIG(grossSalaryTotal);
+            double deductionsTotal = sss + philHealth + pagIBIG;
+            double taxableIncome = grossSalaryTotal - deductionsTotal;
+            double tax = computeTax(taxableIncome);
+            double netSalary2 = grossSalary2 - deductionsTotal - tax;
+            String monthName = getMonthName(month);//converts the number of the month to the name of the month
+            int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();//fetches the number of days for the given month and year
+            
+            //Payroll Display for first half of the month
+            System.out.println("Cutoff Date: " +monthName + " 1 to 15");
+            System.out.println("Total Hours Worked: " +hours1);
+            System.out.println("Gross Salary: "+grossSalary1);
+            System.out.println("Net Salary: "+netSalary1);
 
+            //Payroll Display for second half of the month
+            System.out.println("\nCutoff Date: " +monthName + " 16 to "+daysInMonth);
+            System.out.println("Total Hours Worked: " +hours2);
+            System.out.println("Gross Salary: "+grossSalary2);
+            System.out.println("Deductions: ");
+            System.out.println("    SSS: "+sss);
+            System.out.println("    PhilHealth: "+philHealth);
+            System.out.println("    Pag-IBIG: " + pagIBIG);
+            System.out.println("    Tax: "+tax);
+            System.out.println("Net Salary: "+netSalary2);
+            System.out.println("-".repeat(100));
+
+        }
+    } 
 
     static void loadEmpDetails(ArrayList<String[]> empDetailsTable,ArrayList<String> empNumberList ){
         String empDetailsFilePath = "resources//EmployeeDetails.csv"; 
@@ -121,7 +206,6 @@ public class MotorPH {
             System.exit(1);
         }
     }
-
 
     static void loadAttendance(ArrayList<String[]> attendanceTable){
         String attendanceFilePath = "resources//AttendanceRecord.csv"; 
@@ -170,74 +254,6 @@ public class MotorPH {
         }
     }
 
-    static void processPayroll(String empNumber, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
-        String lastName ="";
-        String firstName ="";
-        String birthday ="";
-        double hourlyRate =0;
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
-
-        boolean found = false;
-        for (String[] empDetailsRow: empDetailsTable){
-            if (!empNumber.equals(empDetailsRow[0]))continue;
-            found = true;
-            empNumber = empDetailsRow[0];
-            lastName = empDetailsRow[1];
-            firstName = empDetailsRow[2];
-            birthday = empDetailsRow[3];
-            try{    
-                hourlyRate = Double.parseDouble(empDetailsRow[18]);
-            }catch (NumberFormatException e) {
-                System.err.println("Number Format Error: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
-                return;
-            }   
-                break;
-        }if (!found){System.out.println("Employee Number does not exist.");return;
-        }
-
-        System.out.println("-".repeat(100));
-        System.out.println("Employee Number: "+empNumber);
-        System.out.println("Name: "+ lastName + ", " + firstName);
-        System.out.println("Birthday: "+birthday);
-        System.out.println("-".repeat(100));
-
-        for (int month=6;month <=12;month++){
-            double[] monthlyHours = computeHoursMonthly(attendanceTable, empNumber, timeFormat, month);
-            double hours1 = monthlyHours[0];
-            double hours2 = monthlyHours[1];
-            double grossSalary1 = computeGrossSalary(hours1, hourlyRate);
-            double netSalary1 = grossSalary1;
-            double grossSalary2 = computeGrossSalary(hours2, hourlyRate);
-            double grossSalaryTotal = grossSalary1 + grossSalary2;
-            double sss = computeSSS(grossSalaryTotal, sssTable);
-            double philHealth = computePhilHealth(grossSalaryTotal);
-            double pagIBIG = computePagIBIG(grossSalaryTotal);
-            double deductionsTotal = sss + philHealth + pagIBIG;
-            double taxableIncome = grossSalaryTotal - deductionsTotal;
-            double tax = computeTax(taxableIncome);
-            double netSalary2 = grossSalary2 - deductionsTotal - tax;
-            String monthName = getMonthName(month);
-            int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();
-
-            System.out.println("Cutoff Date: " +monthName + " 1 to 15");
-            System.out.println("Total Hours Worked: " +hours1);
-            System.out.println("Gross Salary: "+grossSalary1);
-            System.out.println("Net Salary: "+netSalary1);
-
-            System.out.println("\nCutoff Date: " +monthName + " 16 to "+daysInMonth);
-            System.out.println("Total Hours Worked: " +hours2);
-            System.out.println("Gross Salary: "+grossSalary2);
-            System.out.println("Deductions: ");
-            System.out.println("    SSS: "+sss);
-            System.out.println("    PhilHealth: "+philHealth);
-            System.out.println("    Pag-IBIG: " + pagIBIG);
-            System.out.println("    Tax: "+tax);
-            System.out.println("Net Salary: "+netSalary2);
-            System.out.println("-".repeat(100));
-
-        }
-    } 
-
     static String getMonthName (int month){
         if (month == 6)  return "June";
         if (month == 7)  return "July";
@@ -268,23 +284,6 @@ public class MotorPH {
         return monthlyHours;
     }
 
-
-
-    static void displayEmpDetails(String empNumber, ArrayList<String[]> empDetailsTable ){
-        boolean found = false;
-        for (String[] empDetailsRow: empDetailsTable){
-            if (!empNumber.equals(empDetailsRow[0]))continue;
-                System.out.println("-".repeat(100));
-                System.out.println("Employee Number: "+empDetailsRow[0]);
-                System.out.println("Name: "+ empDetailsRow[1] + "," + empDetailsRow[2]);
-                System.out.println("Birthday: "+empDetailsRow[3]);
-                System.out.println("-".repeat(100));
-                found = true;
-                break;
-        }if (!found){System.out.println("Employee Number does not exist.");
-        }
-    }
-
     static double computeHours(LocalTime login, LocalTime logout){
         LocalTime graceTime = LocalTime.of(8,10);
         LocalTime startTime = LocalTime.of(8,0);
@@ -312,7 +311,6 @@ public class MotorPH {
     static double computeGrossSalary(double hours, double hourlyRate){
         return hours*hourlyRate;
     }
-
 
     static double computeSSS(double grossSalaryTotal, ArrayList<String[]> sssTable){
         double contribution = 0;
