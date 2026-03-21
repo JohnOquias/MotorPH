@@ -65,7 +65,7 @@ public class MotorPH {
         System.out.println("\nChoose an option");//display payroll staff menu 
         System.out.println("1. Process Payroll");
         System.out.println("2. Exit the program");   
-        System.out.print("Enter number: ");
+        System.out.print("Enter option: ");
         String payrollStaffOption1 = scanner.nextLine();//payroll staff: menu option input
         if (payrollStaffOption1.equals("1")){
             System.out.println("\nChoose an option");//display payroll staff sub-menu
@@ -93,6 +93,7 @@ public class MotorPH {
         }
     }
     
+    //employee: display employee details
     static void displayEmpDetails(String empNumber, ArrayList<String[]> empDetailsTable ){
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
@@ -108,6 +109,7 @@ public class MotorPH {
         }
     }
     
+    //payroll staff: process payroll
     static void processPayroll(String empNumber, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
         String lastName ="";
         String firstName ="";
@@ -181,6 +183,7 @@ public class MotorPH {
         }
     } 
 
+    //read from employee details CSV file and store inside ArrayLists
     static void loadEmpDetails(ArrayList<String[]> empDetailsTable,ArrayList<String> empNumberList ){
         String empDetailsFilePath = "resources//EmployeeDetails.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(empDetailsFilePath))){
@@ -188,9 +191,9 @@ public class MotorPH {
             String line;
             while ((line=br.readLine())!=null){
                 if(line.trim().isEmpty())continue;
-                String[] empDetailsRow = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                String[] empDetailsRow = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); //split by comma, ignore commas inside double-quoted text
                 for (int i = 0; i < empDetailsRow.length; i++) {
-                    empDetailsRow[i] = empDetailsRow[i].replaceAll("^\"|\"$", "").trim();
+                    empDetailsRow[i] = empDetailsRow[i].replaceAll("^\"|\"$", "").trim();//clean each column by removing surrounding quotes and extra spaces
                 }    
                 empDetailsTable.add(empDetailsRow);
                 empNumberList.add(empDetailsRow[0]);
@@ -207,6 +210,7 @@ public class MotorPH {
         }
     }
 
+    //read attendance records CSV file and store inside an ArrayList
     static void loadAttendance(ArrayList<String[]> attendanceTable){
         String attendanceFilePath = "resources//AttendanceRecord.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(attendanceFilePath))){
@@ -229,6 +233,7 @@ public class MotorPH {
         }
     }
 
+    //read SSS table CSV file and store inside an ArrayList
     static void loadSSSTable(ArrayList<String[]> sssTable){
         String sssTableFilePath = "resources//SSSContribution.csv";
         try(BufferedReader br = new BufferedReader(new FileReader(sssTableFilePath))){
@@ -236,9 +241,9 @@ public class MotorPH {
             br.readLine();
             String line;
             while ((line=br.readLine())!=null){
-                String[] sssData = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                String[] sssData = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");//split by comma, ignore commas inside double-quoted text
                 for (int i = 0; i < sssData.length; i++) {
-                    sssData[i] = sssData[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); 
+                    sssData[i] = sssData[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); //clean each column by removing surrounding quotes and extra spaces
                 }  
                 sssTable.add(sssData);
             } 
@@ -264,7 +269,8 @@ public class MotorPH {
         if (month == 12) return "December";
         return "Month "+month;    
     }
-
+    
+    //compute monthly hours based on the attendance records
     static double[] computeHoursMonthly(ArrayList<String[]> attendanceTable, String empNumber, DateTimeFormatter timeFormat, int month){
         double hours1=0;
         double hours2=0;
@@ -284,10 +290,11 @@ public class MotorPH {
         return monthlyHours;
     }
 
+    //compute daily hours
     static double computeHours(LocalTime login, LocalTime logout){
-        LocalTime graceTime = LocalTime.of(8,10);
-        LocalTime startTime = LocalTime.of(8,0);
-        LocalTime cutoffTime = LocalTime.of(17,0);
+        LocalTime graceTime = LocalTime.of(8,10);//8:10
+        LocalTime startTime = LocalTime.of(8,0);//8:00
+        LocalTime cutoffTime = LocalTime.of(17,0);//17:00
 
         if (!login.isAfter(graceTime)){
             login = startTime;
@@ -329,7 +336,7 @@ public class MotorPH {
 
     static double computePhilHealth (double grossSalaryTotal){
         double premium = 0.03;
-        return grossSalaryTotal*(premium/2);
+        return grossSalaryTotal*(premium/2);//premium shared equally by employee and employer
     }
 
     static double computePagIBIG (double grossSalaryTotal){
@@ -337,9 +344,9 @@ public class MotorPH {
         if (grossSalaryTotal<1000.0)return 0;
         if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
             contribution = grossSalaryTotal*0.01;}
-        if (grossSalaryTotal > 1500.0){
+        else if (grossSalaryTotal > 1500.0){
             contribution = grossSalaryTotal*0.02;}
-        if (contribution > 100)return 100.0;
+        if (contribution > 100)return 100.0; //maximum contribution is 100
         return contribution;
     }
 
