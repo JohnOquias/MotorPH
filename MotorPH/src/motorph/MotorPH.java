@@ -30,17 +30,14 @@ public class MotorPH {
 
         if (username.equals("employee")){
             runEmployeeMenu(scanner, empDetailsTable);// call method for employee menu 
-            return;
         }
 
-        ArrayList<String[]> attendanceTable = new ArrayList<>();// attendance records storage
-        ArrayList<String[]> sssTable = new ArrayList<>();// sss table storage
-        loadAttendance(attendanceTable);//read attendance recods and store to the ArrayLists above
-        loadSSSTable(sssTable);//read SSS table and store to the ArrayLists above
-
-        if (username.equals("payroll_staff")){
+        else if (username.equals("payroll_staff")){
+            ArrayList<String[]> attendanceTable = new ArrayList<>();// attendance records storage
+            ArrayList<String[]> sssTable = new ArrayList<>();// sss table storage
+            loadAttendance(attendanceTable);//read attendance recods and store to the ArrayLists above
+            loadSSSTable(sssTable);//read SSS table and store to the ArrayLists above
             runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);//call method for payroll staff menu 
-            return;
         }
 
         scanner.close();
@@ -56,8 +53,8 @@ public class MotorPH {
             System.out.print("Enter Employee Number: ");
             String empNumber = scanner.nextLine();//employee: employee number input
             displayEmpDetails(empNumber, empDetailsTable);//call method for displaying employee details 
-        }else if (employeeOption.equals("2")){System.exit(0);
-        }else{System.out.println("Invalid option");
+        }else if (employeeOption.equals("2"))return;
+        else{System.out.println("Invalid option");
         }
     }
     
@@ -85,10 +82,10 @@ public class MotorPH {
                 }    
                 System.out.println("-".repeat(100));
             }
-            else if(payrollStaffOption2.equals("3")){System.exit(0);}
+            else if(payrollStaffOption2.equals("3")){return;}
             else {System.out.println("Invalid option");
             }
-        }else if (payrollStaffOption1.equals("2"))System.exit(0);
+        }else if (payrollStaffOption1.equals("2"))return;
         else{System.out.println("Invalid option");
         }
     }
