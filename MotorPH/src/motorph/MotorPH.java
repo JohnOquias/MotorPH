@@ -26,7 +26,7 @@ public class MotorPH {
         
         ArrayList<String> empNumberList = new ArrayList<>();
         ArrayList<String[]> empDetailsTable = new ArrayList<>();
-        readEmpDetails(empDetailsTable,empNumberList);
+        loadEmpDetails(empDetailsTable,empNumberList);
         
         if (username.equals("employee")){
             runEmployeeMenu(scanner, empDetailsTable);
@@ -35,8 +35,8 @@ public class MotorPH {
         
         ArrayList<String[]> attendanceTable = new ArrayList<>();
         ArrayList<String[]> sssTable = new ArrayList<>();
-        readAttendance(attendanceTable);
-        readSSSTable(sssTable);
+        loadAttendance(attendanceTable);
+        loadSSSTable(sssTable);
         
         if (username.equals("payroll_staff")){
             runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);
@@ -47,20 +47,18 @@ public class MotorPH {
     }
     
     static void runPayrollStaffMenu(Scanner scanner, ArrayList<String> empNumberList, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
-        String payrollStaffOption1 ="";
         System.out.println("\nChoose an option");
         System.out.println("1. Process Payroll");
         System.out.println("2. Exit the program");   
         System.out.print("Enter number: ");
-        payrollStaffOption1 = scanner.nextLine();
-        String payrollStaffOption2="";
+        String payrollStaffOption1 = scanner.nextLine();
         if (payrollStaffOption1.equals("1")){
             System.out.println("\nChoose an option");
             System.out.println("1. One Employee");
             System.out.println("2. All Employees"); 
             System.out.println("3. Exit the program"); 
             System.out.print("Enter option: ");
-            payrollStaffOption2 = scanner.nextLine();
+            String payrollStaffOption2 = scanner.nextLine();
             if(payrollStaffOption2.equals("1")){
                 System.out.print("Enter Employee Number: ");
                 String empNumber = scanner.nextLine();
@@ -68,15 +66,18 @@ public class MotorPH {
             else if(payrollStaffOption2.equals("2")){
                 System.out.println("-".repeat(100));
                 for (String empNumber:empNumberList){
-                    processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
-                }   
+                    try{
+                        processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                    }catch (Exception e) {
+                        System.err.println("FAILED to process Employee " + empNumber + ": " + e.getMessage());
+                    }   
+                }    
                 System.out.println("-".repeat(100));}
             else if(payrollStaffOption2.equals("3")){System.exit(0);}
             else {System.out.println("Invalid option");
             }
         }else if (payrollStaffOption1.equals("2"))System.exit(0);
         else{System.out.println("Invalid option");
-            return;
         }
 
        
@@ -98,7 +99,7 @@ public class MotorPH {
     }
             
     
-     static void readEmpDetails(ArrayList<String[]> empDetailsTable,ArrayList<String> empNumberList ){
+    static void loadEmpDetails(ArrayList<String[]> empDetailsTable,ArrayList<String> empNumberList ){
         String empDetailsFilePath = "resources//EmployeeDetails.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(empDetailsFilePath))){
             br.readLine();
@@ -112,13 +113,22 @@ public class MotorPH {
                 empDetailsTable.add(empDetailsRow);
                 empNumberList.add(empDetailsRow[0]);
             }
+        }catch (FileNotFoundException e) {
+            System.err.println("Failed to load Employee Details. File not found at " + empDetailsFilePath);
+            System.exit(1);
+        }catch (IOException e) {
+            System.err.println("SYSTEM ERROR: Could not access the file.");
+            System.exit(1);
+        }catch (Exception e) {
+            System.err.println("GENERAL ERROR in loadEmpDetails " + e.getMessage());
+            System.exit(1);
         }
-        catch(Exception e){
-            e.printStackTrace();
-        } 
     }
     
-    static void readAttendance(ArrayList<String[]> attendanceTable){
+    
+   
+    
+    static void loadAttendance(ArrayList<String[]> attendanceTable){
         String attendanceFilePath = "resources//AttendanceRecord.csv"; 
         try (BufferedReader br = new BufferedReader(new FileReader(attendanceFilePath))){
             br.readLine();
@@ -128,13 +138,19 @@ public class MotorPH {
                 String[] attendanceRow = line.split(",");
                 attendanceTable.add(attendanceRow);
             }
+        }catch (FileNotFoundException e) {
+            System.err.println("Failed to load attendance records. Attendance file not found at " + attendanceFilePath);
+            System.exit(1); 
+        }catch (IOException e) {
+            System.err.println("SYSTEM ERROR: Could not read attendance records." + e.getMessage());
+            System.exit(1);
+        }catch (Exception e) {
+            System.err.println("GENERAL ERROR in loadAttendance: " + e.getMessage());
+            System.exit(1);
         }
-        catch(Exception e){
-            e.printStackTrace();
-        } 
     }
     
-    static void readSSSTable(ArrayList<String[]> sssTable){
+    static void loadSSSTable(ArrayList<String[]> sssTable){
         String sssTableFilePath = "resources//SSSContribution.csv";
         try(BufferedReader br = new BufferedReader(new FileReader(sssTableFilePath))){
             br.readLine();
@@ -147,8 +163,16 @@ public class MotorPH {
                 }  
                 sssTable.add(sssData);
             } 
-        }catch(IOException e){
-            e.printStackTrace();}
+        }catch (FileNotFoundException e) {
+            System.err.println("Failed to load SSS Table. File not found at " + sssTableFilePath);
+            System.exit(1); 
+        }catch (IOException e) {
+            System.err.println("SYSTEM ERROR: Could not read SSS Table." + e.getMessage());
+            System.exit(1);
+        }catch (Exception e) {
+            System.err.println("GENERAL ERROR in loadSSSTable: " + e.getMessage());
+            System.exit(1);
+        }
     }
     
     static void processPayroll(String empNumber, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
@@ -161,12 +185,17 @@ public class MotorPH {
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
+            found = true;
             empNumber = empDetailsRow[0];
             lastName = empDetailsRow[1];
             firstName = empDetailsRow[2];
             birthday = empDetailsRow[3];
-            hourlyRate = Double.parseDouble(empDetailsRow[18]);
-            found = true;
+            try{    
+                hourlyRate = Double.parseDouble(empDetailsRow[18]);
+            }catch (NumberFormatException e) {
+                System.err.println("SKIPPING ROW: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
+            }   
+                break;
         }if (!found){System.out.println("Employee Number does not exist.");return;
         }
         
@@ -249,7 +278,6 @@ public class MotorPH {
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
-            if (empNumber.equals(empDetailsRow[0])){
                 System.out.println("-".repeat(100));
                 System.out.println("Employee Number: "+empDetailsRow[0]);
                 System.out.println("Name: "+ empDetailsRow[1] + "," + empDetailsRow[2]);
@@ -257,7 +285,6 @@ public class MotorPH {
                 System.out.println("-".repeat(100));
                 found = true;
                 break;
-            }
         }if (!found){System.out.println("Employee Number does not exist.");
         }
     }
@@ -325,15 +352,15 @@ public class MotorPH {
     static double computeTax(double taxableIncome){
         double contribution=0;
         if (taxableIncome<20833)return 0;
-        if (taxableIncome>=20833 && taxableIncome<33333){
+        else if (taxableIncome>=20833 && taxableIncome<33333){
             contribution = (taxableIncome - 20833)*0.20;
-        }if (taxableIncome>=33333 && taxableIncome<66667){
+        }else if (taxableIncome>=33333 && taxableIncome<66667){
             contribution = 2500 + ((taxableIncome - 33333)*0.25);
-        }if (taxableIncome>=66667 && taxableIncome<166667){
+        }else if (taxableIncome>=66667 && taxableIncome<166667){
             contribution = 10833 + ((taxableIncome - 66667)*0.30);
-        }if (taxableIncome>=166667 && taxableIncome<666667){
+        }else if (taxableIncome>=166667 && taxableIncome<666667){
             contribution = 40833.33 + ((taxableIncome - 166667)*0.32);
-        }if (taxableIncome>=666667 ){
+        }else if (taxableIncome>=666667 ){
             contribution = 200833.33 + ((taxableIncome - 666667)*0.35);
         }
         return contribution;
