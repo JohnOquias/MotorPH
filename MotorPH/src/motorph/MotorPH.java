@@ -30,6 +30,7 @@ public class MotorPH {
         
         if (username.equals("employee")){
             runEmployeeMenu(scanner, empDetailsTable);
+            return;
         }
         
         ArrayList<String[]> attendanceTable = new ArrayList<>();
@@ -39,7 +40,9 @@ public class MotorPH {
         
         if (username.equals("payroll_staff")){
             runPayrollStaffMenu(scanner, empNumberList, empDetailsTable, attendanceTable, sssTable);
+            return;
         }
+        
         scanner.close();
     }
     
@@ -87,8 +90,8 @@ public class MotorPH {
         String employeeOption = scanner.nextLine();
         if (employeeOption.equals("1")){
             System.out.print("Enter Employee Number: ");
-            String empNumInput = scanner.nextLine();
-            displayEmpDetails(empNumInput, empDetailsTable);
+            String empNumber = scanner.nextLine();
+            displayEmpDetails(empNumber, empDetailsTable);
         }else if (employeeOption.equals("2")){System.exit(0);
         }else{System.out.println("Invalid option");
         }
