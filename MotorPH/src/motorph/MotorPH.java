@@ -11,17 +11,24 @@ import java.util.ArrayList;
 public class MotorPH {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter Username: ");
-        String username = scanner.nextLine();//username input
-        System.out.print("Enter Password: ");
-        String password = scanner.nextLine();//password input
+        
+        //login
+        String username="";
+        String password="";
+        while (true){
+            System.out.print("Enter Username: ");
+            username = scanner.nextLine();//username input
+            System.out.print("Enter Password: ");
+            password = scanner.nextLine();//password input
 
-        if (!username.equals("employee") && !username.equals("payroll_staff")){
-            System.out.println("Incorrect username and/or password.");
-            return;
-        }if (!password.equals("12345")){
-            System.out.println("Incorrect username and/or password.");
-            return;
+            if (!username.equals("employee") && !username.equals("payroll_staff")){
+                System.out.println("Incorrect username and/or password.");
+                continue;
+            }if (!password.equals("12345")){
+                System.out.println("Incorrect username and/or password.");
+                continue;
+            }
+            break;
         }
 
         ArrayList<String> empNumberList = new ArrayList<>();//Employee Number storage
@@ -45,49 +52,66 @@ public class MotorPH {
 
     static void runEmployeeMenu(Scanner scanner, ArrayList<String[]> empDetailsTable){
         System.out.println("\nChoose an option");//display employee menu 
-        System.out.println("1. Enter your employee number");
-        System.out.println("2. Exit the program");   
-        System.out.print("Enter option: ");
-        String employeeOption = scanner.nextLine();//employee: menu option input
-        if (employeeOption.equals("1")){
-            System.out.print("Enter Employee Number: ");
-            String empNumber = scanner.nextLine();//employee: employee number input
-            displayEmpDetails(empNumber, empDetailsTable);//call method for displaying employee details 
-        }else if (employeeOption.equals("2"))return;
-        else{System.out.println("Invalid option");
-        }
+        while (true){
+            System.out.println("1. Enter your employee number");
+            System.out.println("2. Exit the program");   
+            System.out.print("Enter option: ");
+            String employeeOption = scanner.nextLine();//employee: menu option input
+            if (employeeOption.equals("1")){
+                System.out.print("Enter Employee Number: ");
+                String empNumber = scanner.nextLine();//employee: employee number input
+                displayEmpDetails(empNumber, empDetailsTable);//call method for displaying employee details 
+            }else if (employeeOption.equals("2")){
+                return;
+            }else{
+                System.out.println("Invalid option");
+                continue;
+            }
+            break;
+        }    
     }
     
     static void runPayrollStaffMenu(Scanner scanner, ArrayList<String> empNumberList, ArrayList<String[]> empDetailsTable, ArrayList<String[]> attendanceTable, ArrayList<String[]> sssTable){
         System.out.println("\nChoose an option");//display payroll staff menu 
-        System.out.println("1. Process Payroll");
-        System.out.println("2. Exit the program");   
-        System.out.print("Enter option: ");
-        String payrollStaffOption1 = scanner.nextLine();//payroll staff: menu option input
-        if (payrollStaffOption1.equals("1")){
-            System.out.println("\nChoose an option");//display payroll staff sub-menu
-            System.out.println("1. One Employee");
-            System.out.println("2. All Employees"); 
-            System.out.println("3. Exit the program"); 
+        while (true){
+            System.out.println("1. Process Payroll");
+            System.out.println("2. Exit the program");   
             System.out.print("Enter option: ");
-            String payrollStaffOption2 = scanner.nextLine();//payroll staff: sub-menu option input
-            if(payrollStaffOption2.equals("1")){
-                System.out.print("Enter Employee Number: ");
-                String empNumber = scanner.nextLine();//payroll staff: employee number input
-                processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);//call method for processing payroll
-            }else if(payrollStaffOption2.equals("2")){
-                System.out.println("-".repeat(100));//visual separator
-                for (String empNumber:empNumberList){//looping through every employee
-                    processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+            String payrollStaffOption1 = scanner.nextLine();//payroll staff: menu option input
+            if (payrollStaffOption1.equals("1")){
+                System.out.println("\nChoose an option");//display payroll staff sub-menu
+                while (true){
+                    System.out.println("1. One Employee");
+                    System.out.println("2. All Employees"); 
+                    System.out.println("3. Exit the program"); 
+                    System.out.print("Enter option: ");
+                    String payrollStaffOption2 = scanner.nextLine();//payroll staff: sub-menu option input
+                    if(payrollStaffOption2.equals("1")){
+                        System.out.print("Enter Employee Number: ");
+                        String empNumber = scanner.nextLine();//payroll staff: employee number input
+                        processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);//call method for processing payroll
+                    }else if(payrollStaffOption2.equals("2")){
+                        System.out.println("-".repeat(100));//visual separator
+                        for (String empNumber:empNumberList){//looping through every employee
+                            processPayroll(empNumber, empDetailsTable, attendanceTable, sssTable);
+                        }    
+                        System.out.println("-".repeat(100));
+                    }else if(payrollStaffOption2.equals("3")){
+                        return;
+                    }else {
+                        System.out.println("Invalid option");
+                        continue;
+                    }
+                    break;
                 }    
-                System.out.println("-".repeat(100));
+            }else if (payrollStaffOption1.equals("2")){
+                return;
+            }else{
+                System.out.println("Invalid option");
+                continue;
             }
-            else if(payrollStaffOption2.equals("3")){return;}
-            else {System.out.println("Invalid option");
-            }
-        }else if (payrollStaffOption1.equals("2"))return;
-        else{System.out.println("Invalid option");
-        }
+            break;
+        }    
     }
     
     //employee: display employee details
@@ -95,14 +119,15 @@ public class MotorPH {
         boolean found = false;
         for (String[] empDetailsRow: empDetailsTable){
             if (!empNumber.equals(empDetailsRow[0]))continue;
-                System.out.println("-".repeat(100));
-                System.out.println("Employee Number: "+empDetailsRow[0]);
-                System.out.println("Name: "+ empDetailsRow[1] + "," + empDetailsRow[2]);
-                System.out.println("Birthday: "+empDetailsRow[3]);
-                System.out.println("-".repeat(100));
-                found = true;
-                break;
-        }if (!found){System.out.println("Employee Number does not exist.");
+            System.out.println("-".repeat(100));
+            System.out.println("Employee Number: "+empDetailsRow[0]);
+            System.out.println("Name: "+ empDetailsRow[1] + "," + empDetailsRow[2]);
+            System.out.println("Birthday: "+empDetailsRow[3]);
+            System.out.println("-".repeat(100));
+            found = true;
+            break;
+        }if (!found){
+            System.out.println("Employee Number does not exist.");
         }
     }
     
@@ -125,12 +150,13 @@ public class MotorPH {
             birthday = empDetailsRow[3];
             try{    
                 hourlyRate = Double.parseDouble(empDetailsRow[18]);
-            }catch (NumberFormatException e) {//If there is a number format error for hourly rate, display error message, close method
+            }catch (NumberFormatException e){ 
                 System.err.println("Number Format Error: Invalid hourly rate number format for Employee " + empDetailsRow[0]);
                 return;
-            }   
-                break;
-        }if (!found){System.out.println("Employee Number does not exist.");return;
+            }break;
+        }if (!found){
+            System.out.println("Employee Number does not exist.");
+            return;
         }
         
         //display employee details
@@ -152,10 +178,11 @@ public class MotorPH {
             double sss = computeSSS(grossSalaryTotal, sssTable);
             double philHealth = computePhilHealth(grossSalaryTotal);
             double pagIBIG = computePagIBIG(grossSalaryTotal);
-            double deductionsTotal = sss + philHealth + pagIBIG;
-            double taxableIncome = grossSalaryTotal - deductionsTotal;
+            double deductionsSubTotal = sss + philHealth + pagIBIG;
+            double taxableIncome = grossSalaryTotal - deductionsSubTotal;
             double tax = computeTax(taxableIncome);
-            double netSalary2 = grossSalary2 - deductionsTotal - tax;
+            double deductionsTotal = deductionsSubTotal + tax;
+            double netSalary2 = grossSalary2 - deductionsTotal;
             String monthName = getMonthName(month);//converts the number of the month to the name of the month
             int daysInMonth=YearMonth.of(2024, month).lengthOfMonth();//fetches the number of days for the given month and year
             
@@ -174,6 +201,7 @@ public class MotorPH {
             System.out.println("    PhilHealth: "+philHealth);
             System.out.println("    Pag-IBIG: " + pagIBIG);
             System.out.println("    Tax: "+tax);
+            System.out.println("Total Deductions: " + deductionsTotal);
             System.out.println("Net Salary: "+netSalary2);
             System.out.println("-".repeat(100));
 
@@ -238,11 +266,11 @@ public class MotorPH {
             br.readLine();
             String line;
             while ((line=br.readLine())!=null){
-                String[] sssData = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");//split by comma, ignore commas inside double-quoted text
-                for (int i = 0; i < sssData.length; i++) {
-                    sssData[i] = sssData[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); //clean each column by removing surrounding quotes and extra spaces
+                String[] sssRow = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");//split by comma, ignore commas inside double-quoted text
+                for (int i = 0; i < sssRow.length; i++) {
+                    sssRow[i] = sssRow[i].replaceAll("^\"|\"$", "").trim().replace(",", ""); //clean each column by removing surrounding quotes and extra spaces
                 }  
-                sssTable.add(sssData);
+                sssTable.add(sssRow);
             } 
         }catch (FileNotFoundException e) {
             System.err.println("Failed to load SSS Table. File not found at " + sssTableFilePath);
@@ -277,12 +305,15 @@ public class MotorPH {
             int recordMonth = Integer.parseInt(dateParts[0]);
             int day = Integer.parseInt(dateParts[1]);
             int year = Integer.parseInt(dateParts[2]);
-            if(year != 2024 || recordMonth != month) continue;
+            if(year != 2024 || recordMonth != month)continue;
             LocalTime login = LocalTime.parse(attendanceRow[4].trim(), timeFormat);
             LocalTime logout = LocalTime.parse(attendanceRow[5].trim(), timeFormat);
             double hours = computeHours(login, logout);
-            if (day<=15) {hours1 += hours;
-            }else hours2 += hours;
+            if (day<=15) {
+                hours1 += hours;
+            }else {
+                hours2 += hours;
+            }
         }double[] monthlyHours = {hours1,hours2};
         return monthlyHours;
     }
@@ -320,11 +351,11 @@ public class MotorPH {
         double contribution = 0;
         if (grossSalaryTotal<3250.0)return 135.00;
         if (grossSalaryTotal>=24750.0)return 1125.00;
-        for (String[] sssData: sssTable){
-            double min = Double.parseDouble(sssData[0]);
-            double max = Double.parseDouble(sssData[2]);
+        for (String[] sssRow: sssTable){
+            double min = Double.parseDouble(sssRow[0]);
+            double max = Double.parseDouble(sssRow[2]);
             if (grossSalaryTotal >= min && grossSalaryTotal <=max){
-                contribution = Double.parseDouble(sssData[3]);
+                contribution = Double.parseDouble(sssRow[3]);
                 break;
             }
         }
@@ -338,19 +369,22 @@ public class MotorPH {
 
     static double computePagIBIG (double grossSalaryTotal){
         double contribution = 0;
-        if (grossSalaryTotal<1000.0)return 0;
-        if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
-            contribution = grossSalaryTotal*0.01;}
-        else if (grossSalaryTotal > 1500.0){
-            contribution = grossSalaryTotal*0.02;}
+        if (grossSalaryTotal<1000.0){
+            return 0;
+        }else if (grossSalaryTotal>=1000.0&&grossSalaryTotal<=1500.0){
+            contribution = grossSalaryTotal*0.01;
+        }else if (grossSalaryTotal > 1500.0){
+            contribution = grossSalaryTotal*0.02;
+        }
         if (contribution > 100)return 100.0; //maximum contribution is 100
         return contribution;
     }
 
     static double computeTax(double taxableIncome){
         double contribution=0;
-        if (taxableIncome<20833)return 0;
-        else if (taxableIncome>=20833 && taxableIncome<33333){
+        if (taxableIncome<20833){
+            return 0;
+        }else if (taxableIncome>=20833 && taxableIncome<33333){
             contribution = (taxableIncome - 20833)*0.20;
         }else if (taxableIncome>=33333 && taxableIncome<66667){
             contribution = 2500 + ((taxableIncome - 33333)*0.25);
